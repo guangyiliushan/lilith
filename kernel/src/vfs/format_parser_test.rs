@@ -1,0 +1,44 @@
+#![cfg(test)]
+use super::format_parser::*;
+
+#[test]
+fn test_pe_format_detection() {
+    // PE文件头(MZ) + PE标识
+    let pe_header = vec![0x4D, 0x5A, 0x90, 0x00, 0x03, 0x00, 0x00, 0x00,
+        0x04, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00,
+        0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x50, 0x45, 0x00, 0x00]; // PE\0\0
+    assert_eq!(identify_exec_format(&pe_header), ExecFormat::PE);
+}
+
+#[test]
+fn test_elf_executable_detection() {
+    // ELF可执行文件头
+    let elf_header = vec![0x7F, 0x45, 0x4C, 0x46, 0x02, 0x01, 0x01, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x02, 0x00]; // e_type = ET_EXEC(0x02)
+    assert_eq!(identify_exec_format(&elf_header), ExecFormat::ELF);
+}
+
+#[test]
+fn test_macho_universal_detection() {
+    // Mach-O 64位小端头
+    let macho_header = vec![0xCF, 0xFA, 0xED, 0xFE, 0x07, 0x00, 0x00, 0x00,
+        0x03, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00];
+    assert_eq!(identify_exec_format(&macho_header), ExecFormat::MachO);
+}
+
+#[test]
+fn test_script_detection() {
+    // 带shebang的脚本文件
+    let script_header = b"#!/usr/bin/env bash\n".to_vec();
+    assert_eq!(identify_exec_format(&script_header), ExecFormat::Script);
+}
+
+#[test]
+fn test_priority_resolution() {
+    // 同时匹配多个格式时的优先级判断
+    let hybrid_header = vec![0x4D, 0x5A, 0x23, 0x21]; // MZ头 + shebang
+    assert_eq!(identify_exec_format(&hybrid_header), ExecFormat::Script);
+}

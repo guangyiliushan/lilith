@@ -1,0 +1,10 @@
+[build]
+target = "x86_64-unknown-none"
+
+[target.x86_64-unknown-none]
+rustflags = [
+    "-C", "link-arg=-Tlinker.ld" # 确保链接器脚本正确
+]
+
+#![no_std]
+#![feature(abi_x86_interrupt)]

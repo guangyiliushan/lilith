@@ -1,0 +1,15 @@
+[workspace]
+members = [
+    "bootloader",
+    "kernel",
+    "driver"
+]
+
+resolver = "3"
+
+[workspace.dependencies]
+x86_64 = { version = "0.15.2", features = ["instructions"] }
+spin = "0.10.0"
+log = "0.4"
+buddy_system_allocator = "0.11"  # 新增内存管理依赖
+multiboot2 = "0.10"  # 引导协议支持
