@@ -1,0 +1,11 @@
+[package]
+name = "lilith-kernel"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["staticlib"]
+path = "src/lib.rs"
+
+[dependencies]
+multiboot2 = "0.23.1"
