@@ -1,4 +1,6 @@
 #![no_std]
+#![no_main]
+
 use core::arch::asm;
 use core::fmt::Write;
 use multiboot2::BootInformation;
@@ -13,14 +15,12 @@ impl SerialPort {
     }
 
     unsafe fn write_byte(&self, byte: u8) {
-        unsafe {
-            asm!(
-                "outb %al, %dx",
-                in("al") byte,
-                in("dx") self.port,
-                options(nostack, nomem, preserves_flags)
-            );
-        }
+        asm!(
+            "outb %al, %dx",
+            in("al") byte,
+            in("dx") self.port,
+            options(nostack, nomem, preserves_flags)
+        );
     }
 }
 
@@ -35,9 +35,31 @@ impl Write for SerialPort {
 
 static mut SERIAL1: SerialPort = SerialPort::new(0x3F8);
 
-pub extern "C" fn start(_boot_info: &'static BootInformation) {
+#[no_mangle]
+pub extern "C" fn start(boot_info: &'static BootInformation) -> ! {
     unsafe {
-        let serial = &raw mut SERIAL1;
-        serial.as_mut().unwrap().write_str("Hello, World! This is my kernel with multiboot2.\n").unwrap();
+        let serial = &mut SERIAL1;
+        serial.write_str("Kernel is starting...\n").unwrap();
+        serial.write_str("Initializing kernel...\n").unwrap();
+    }
+
+    kernel_init();
+
+    unsafe {
+        let serial = &mut SERIAL1;
+        serial.write_str("Kernel initialized successfully!\n").unwrap();
+    }
+
+    loop {
+        unsafe {
+            asm!("hlt", options(nomem, nostack, preserves_flags));
+        }
+    }
+}
+
+fn kernel_init() {
+    unsafe {
+        let serial = &mut SERIAL1;
+        serial.write_str("Performing basic setup...\n").unwrap();
     }
 }
