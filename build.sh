@@ -1,10 +1,10 @@
 #!/bin/bash
 
-KERNEL_FILE=target/x86_64-unknown-none/release/libmy_kernel.a
+KERNEL_FILE=lilith-kernel/target/x86_64-unknown-none/release/libmy_kernel.a
 QEMU_KERNEL=kernel.bin
 
 # Compile the kernel
-cargo build --release --target x86_64-unknown-none
+cargo build --release --manifest-path lilith-kernel/Cargo.toml --target x86_64-unknown-none
 
 # Create a simple bootloader that loads our kernel
 cat > bootloader.asm << EOF
