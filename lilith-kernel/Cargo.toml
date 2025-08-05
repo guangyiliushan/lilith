@@ -1,0 +1,49 @@
+[package]
+name = "lilith-kernel"
+version = "0.1.0"
+edition = "2021"
+authors = ["Lilith OS Team"]
+description = "基于Rust的RISC-V RV23微内核操作系统"
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+# 核心依赖
+spin = "0.9"
+lazy_static = { version = "1.4", features = ["spin_no_std"] }
+bitflags = "2.4"
+linked_list_allocator = "0.10"
+
+# RISC-V架构支持
+riscv = "0.10"
+
+# 可选的调试支持
+log = { version = "0.4", default-features = false }
+
+[target.'cfg(target_arch = "riscv64")'.dependencies]
+riscv = "0.10"
+
+[features]
+default = []
+# 调试特性
+debug = ["log"]
+# 测试特性
+test = []
+
+[profile.dev]
+panic = "abort"
+opt-level = 0
+debug = true
+lto = false
+
+[profile.release]
+panic = "abort"
+opt-level = 3
+debug = false
+lto = true
+codegen-units = 1
+
+[[bin]]
+name = "lilith-kernel"
+path = "src/main.rs"

@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "lilith-kernel"
+]
+resolver = "3"
